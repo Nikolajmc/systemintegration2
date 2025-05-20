@@ -8,15 +8,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Xml.Linq;
 
 namespace SystemInteg
 {
-    public partial class DeleteForm : Form
+    public partial class DeleteFormTeacher : Form
     {
         string connectionString = "Data Source=MSI;Initial Catalog=GeoFenceDB;Integrated Security=True;Encrypt=False;";
 
-        public DeleteForm()
+        public DeleteFormTeacher()
         {
             InitializeComponent();
             DisplayData();
@@ -27,7 +26,7 @@ namespace SystemInteg
             using (SqlConnection con = new SqlConnection(connectionString))
             {
                 con.Open();
-                SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM Students", con);
+                SqlDataAdapter da = new SqlDataAdapter("SELECT * FROM Teachers", con);
                 DataTable dt = new DataTable();
                 da.Fill(dt);
                 dataGridView1.DataSource = dt;
@@ -40,13 +39,13 @@ namespace SystemInteg
             {
                 DataGridViewRow row = this.dataGridView1.Rows[e.RowIndex];
 
-                txtId.Text = row.Cells["idDataGridViewTextBoxColumn"].Value.ToString();
+                txtId_Teacher.Text = row.Cells["idDataGridViewTextBoxColumn"].Value.ToString();
             }
         }
 
-        private void roundButton4_Click(object sender, EventArgs e)
+        private void btnConfirm_Teacher_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrWhiteSpace(txtId.Text))
+            if (string.IsNullOrWhiteSpace(txtId_Teacher.Text))
             {
                 MessageBox.Show("Please select a record to delete.", "Warning", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
@@ -59,8 +58,8 @@ namespace SystemInteg
                 using (SqlConnection con = new SqlConnection(connectionString))
                 {
                     con.Open();
-                    SqlCommand cmd = new SqlCommand("DELETE FROM Students WHERE Id = @Id", con);
-                    cmd.Parameters.AddWithValue("@Id", Convert.ToInt32(txtId.Text));
+                    SqlCommand cmd = new SqlCommand("DELETE FROM Teachers WHERE Id = @Id", con);
+                    cmd.Parameters.AddWithValue("@Id", Convert.ToInt32(txtId_Teacher.Text));
 
                     int rowsAffected = cmd.ExecuteNonQuery();
 
@@ -68,7 +67,7 @@ namespace SystemInteg
                     {
                         MessageBox.Show("Record deleted successfully!", "Success", MessageBoxButtons.OK, MessageBoxIcon.Information);
                         DisplayData();
-                        txtId.Clear();
+                        txtId_Teacher.Clear();
                     }
                     else
                     {
@@ -78,29 +77,20 @@ namespace SystemInteg
             }
         }
 
-
         void Search(string text = null)
         {
             if (string.IsNullOrWhiteSpace(txtSearch.Text) || txtSearch.Text == "Search")
             {
-                dataGridView1.DataSource = Query("SELECT * FROM Students");
+                dataGridView1.DataSource = Query("SELECT * FROM Teachers");
                 return;
             }
 
             string query = @"
-        SELECT * FROM Students 
+        SELECT * FROM Teachers
         WHERE CONCAT_WS('|', 
             Id, 
-            Student_Name, 
-            Student_Password, 
-            Student_YearLevel, 
-            Student_Section, 
-            Student_Number, 
-            Student_Teacher, 
-            Student_Birthdate, 
-            Student_GuardianName, 
-            Guardian_Number, 
-            Guardian_Address
+            Teacher_Name, 
+            Classes
         ) LIKE @Search";
 
             dataGridView1.DataSource = Query(query, new SqlParameter("@Search", "%" + text + "%"));
